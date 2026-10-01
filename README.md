@@ -40,9 +40,9 @@ VIATAhos/
 ├── linker.ld               # Kernel linker script (0x9000 text, 1MB BSS)
 ├── setup_images.sh         # Helper to generate floppy, CD-ROM, and tape test media
 ├── .gitignore              # Ignores build artifacts, disk images, and logs
-├── README.md               # Repository documentation and quick start
-├── OSinfo/                 # Official documentation
-│   ├── comandi_os.txt      # Official Complete Commands Manual
+├── README.md               # Repository documentation & Official Commands Manual
+├── OSinfo/                 # Additional system documentation
+│   ├── comandi_os.txt      # Extended command ideas & future additions reference
 │   └── guida_viatahos.md   # Architectural overview & programmer's guide
 └── src/                    # Kernel Source Tree
     ├── boot/               # Bootloaders & entry points
@@ -55,7 +55,7 @@ VIATAhos/
     │   ├── commands.inc    # T-CORE shell command processor
     │   ├── exec.h          # File execution contract (.xep, .kvbn, .smol)
     │   ├── qr_code.h       # VGA text mode QR code bitmap generator
-    │   └── version.h       # Version configuration
+    │   └── version.h       # Version configuration (v1.0 AlpDev 1.0.0)
     ├── drivers/            # Bare-metal hardware drivers
     │   ├── io.h            # In-line assembly for port I/O (inb, outb, inw, outw, inl, outl)
     │   ├── vga.h / vga.c   # 80x25 VGA driver, 12-session history, DPMS blanking
@@ -122,19 +122,257 @@ make clean
 
 ---
 
-## ⌨️ T-CORE Commands & Usage
+## 📖 OFFICIAL T-CORE COMMANDS MANUAL
 
-All shell commands, operational syntax, drive prompt hierarchies, and keybindings must be learned directly from the official commands manual:
+This section is the **definitive user and operational manual** for all native commands implemented inside the VIATAhos kernel (`src/core/commands.inc`).
 
-📖 **[`OSinfo/comandi_os.txt`](OSinfo/comandi_os.txt)** — *Lista Completa dei Comandi di Sistema*
+Commands prefixed with an asterisk (`*`) require administrative authentication or active Kernel Native Mode (`kn`).
+
+### 🎮 Global Navigation & Keyboard Controls
+
+- **`F1` – `F12`**: Switch instantly between **12 concurrent terminal sessions**. Each session maintains its own working directory, active user, shell prompt, and independent 100-line history buffer.
+- **`Up Arrow` / `Down Arrow`**: Scroll upward or downward through the active session's 100-line scrollback buffer.
+- **`Left Arrow` / `Right Arrow`**: In-place cursor movement inside the active command line.
+- **`Backspace`**: Delete character at cursor position.
+- **`Enter`**: Submit command for execution.
+
+### 📦 The Double Extension Rule (`.smol`)
+
+VIATAhos treats `.smol` as a **secondary compression envelope** that does not replace the original file extension:
+- If a file is compressed, its extension format is `ext.smol name` (e.g. `xep.smol calcolatrice` or `txt.smol diario`).
+- When launching a `.smol` executable with `xp`, the kernel transparently decompresses the file into RAM before execution.
+- When opening a `.smol` text file with the editor `di`, the editor decompresses it on read and automatically recompresses it on save.
+
+### 💽 Drive Letter Hierarchy
+
+Prompts reflect the physical drive and permission level:
+- `A:>` : Floppy Disk (Read-only OS volume)
+- `B:>` : Optical CD/DVD/Blu-Ray (ISO 9660 volume)
+- `C:>` : Removable Storage (USB Flash / SD Card, FAT32)
+- `D:>` : Fixed Internal Drive (HDD / SSD / NVMe, FAT32)
+- `E:>` : Magnetic Tape Unit (TAR sequential archive)
+- `F:>` : Virtual RAM Disk (Boot volume)
+- `:KN>`: Suffix indicating active **Kernel Native (Admin)** mode.
 
 ---
 
-## 📖 System Documentation
+### 1. File & Directory Management
 
-The official system documentation is located in the `OSinfo/` directory:
-- [Manuale Ufficiale dei Comandi](OSinfo/comandi_os.txt) — The definitive reference for all system commands, drive hierarchies, double-extension rules, and utilities.
-- [Guida del Programmatore & Architettura Hardware](OSinfo/guida_viatahos.md) — Comprehensive technical reference covering hardware specifications, memory models, file contracts, and Anti-UNIX philosophy.
+#### `ft` — File System Navigation & Tree
+Explores the FAT32 directory structure, displaying cluster numbers, file attributes, and exact byte sizes.
+- `ft` : Lists all files and subdirectories in the current folder.
+- `ft <ext>` : Filters and lists only files matching the given extension (e.g. `ft txt` or `ft xep`).
+- `ft dir <name>` : Navigates into the specified subdirectory (e.g. `ft dir docs`).
+- `ft ..` : Navigates to the parent directory.
+
+#### `mk` — Create File or Directory
+Allocates a new record in the FAT32 table.
+- `mk dir <name>` : Creates a new directory (e.g. `mk dir projects`).
+- `mk <ext> <name>` : Creates an empty file with the given extension (e.g. `mk txt notes` or `mk xep app`).
+
+#### `di` — Full-Screen Text Editor
+Opens the integrated multi-line screen editor (supports up to 1024 lines × 80 columns).
+- `di <ext> <name>` : Opens the specified file (e.g. `di txt notes` or `di txt.smol diario`).
+- **Editor Controls:**
+  - `Arrow Keys` : Move cursor and scroll view.
+  - `Enter` : Split line; `Backspace` : Delete character or merge line with upper line.
+  - `Tab` : Insert 4 indentation spaces.
+  - `ESC` or `F4` : Save changes to disk (automatically compresses if filename ends with `.smol`).
+  - `Shift + ESC` : Save changes and immediately exit back to the shell.
+
+#### `dl` — Delete File (Move to Recycle Bin)
+Safely moves a file to the system Recycle Bin (`\.trash\`).
+- `dl <ext> <name>` : Moves the specified file to the trash folder (e.g. `dl txt draft`).
+
+#### `do` — Rename or Reformat File
+Updates the directory record to rename a file or change its extension.
+- `do <ext1> <name1> <ext2> <name2>` : Renames `<name1>.<ext1>` to `<name2>.<ext2>` (e.g. `do txt old doc new`).
+
+#### `cf` — Copy File to Clipboard
+Copies the specified file to the system-wide clipboard buffer.
+- `cf <ext> <name>` : Copies the file (e.g. `cf txt report`).
+
+#### `xf` — Cut File to Clipboard
+Marks the specified file to be moved upon pasting.
+- `xf <ext> <name>` : Cuts the file (e.g. `xf txt draft`).
+
+#### `vf` — Paste File from Clipboard
+Pastes the clipboard file into the current working directory.
+- `vf` : Pastes the file retaining its original name.
+- `vf <ext> <name>` : Pastes the file under a new name and extension (e.g. `vf txt copy`).
+
+#### `qd` — Quick Data Append
+Appends a line of text directly to a file on disk without opening the editor.
+- `qd <ext> <name> ><text>` : Appends `<text>` to the file (e.g. `qd txt log >Kernel booted successfully`).
+
+#### `fs` — Stream Command Output to File
+Executes any shell command and redirects its text output directly into a file.
+- `fs <ext> <name> <command>` : Runs `<command>` and writes output to `<name>.<ext>` (e.g. `fs txt sysinfo sys`).
+
+#### `smol` — LZ77 File Compression & Extraction
+Invokes the native SMOL compression engine.
+- `smol <ext> <name>` : Compresses `<name>.<ext>` into `<name>.<ext>.smol` using LZ77.
+- `smol smol <name>.<ext>` : Decompresses the file back to its original uncompressed state.
+
+#### `srcsys` — Deep System Search
+Recursively searches the storage volume for files, folders, or text strings.
+- `srcsys <ext> <name>` : Finds all files matching the name and extension (e.g. `srcsys txt config`).
+- `srcsys dir <name>` : Finds all directories matching `<name>` (e.g. `srcsys dir backup`).
+- `srcsys "<text>"` : Scans inside text files and returns all occurrences containing `<text>`.
+
+---
+
+### 2. Recycle Bin Operations (`bnsys`)
+
+#### `bnsys` — List Recycle Bin Contents
+Displays all deleted files currently preserved in the `\.trash\` directory.
+- `bnsys` : Lists items with original filenames and deletion records.
+
+#### `unbn` — Restore File from Recycle Bin
+Restores a previously deleted file back to the active working directory.
+- `unbn <ext> <name>` : Restores the file (e.g. `unbn txt draft`).
+
+#### `* dlbn` — Permanent File Shredding
+Irreversibly deletes a file from the Recycle Bin by zeroing out its directory entry on disk.
+- `dlbn <ext> <name>` : Permanently destroys the file (e.g. `dlbn txt secret`).
+
+#### `* clbn` — Securely Empty Recycle Bin
+Purges and sanitizes all sectors allocated to the Recycle Bin.
+- `clbn` : Asks for confirmation (`Y/N`) and wipes the trash directory.
+
+#### `srcbn` — Search Inside Recycle Bin
+Searches specifically inside the deleted file records.
+- `srcbn <text>` : Searches for deleted items containing `<text>` (e.g. `srcbn draft`).
+
+---
+
+### 3. Execution & Automation
+
+#### `xp` — Execute Binary or Script
+Loads and executes a program.
+- `xp <ext> <name>` : Runs the program (e.g. `xp xep game` or `xp kvbn startup`).
+- If the file has a `.smol` extension (e.g. `xp xep.smol game`), the kernel automatically uncompresses it into memory before running.
+
+#### `rpt` — Repeat Command Loop
+Executes a shell command repeatedly for a specified number of iterations.
+- `rpt(<command>)<count>` : Repeats `<command>` `<count>` times (e.g. `rpt(wt)5`).
+
+#### `w` — Timed Pause / Wait
+Suspends shell execution for a deterministic duration.
+- `w <seconds>` : Pauses for the given number of seconds (e.g. `w 5`).
+
+---
+
+### 4. User Accounts & Security
+
+#### `* mksys` — Create System User
+Initializes a new user account profile.
+- `mksys` : Prompts interactively for a new username and password.
+
+#### `* dlsys` — Delete User Account
+Removes an account from the system users registry.
+- `dlsys` : Prompts for confirmation and deletes the current account.
+
+#### `* sysnm` — Rename User Account
+Updates the active account's username.
+- `sysnm` : Prompts for the new username.
+
+#### `* syspw` — Change Password
+Updates the account password.
+- `syspw` : Prompts for the current password, the new password, and confirmation.
+
+#### `* chgsys` — Logout
+Logs out of the active user session, returning to the login prompt.
+- `chgsys` : Disconnects the current user.
+
+#### `* kn` — Toggle Kernel Native Mode (Admin)
+Enables or disables persistent administrative privilege.
+- `kn` : Toggles mode. When active, prompt displays `:KN` and all administrative commands bypass password verification.
+
+#### `nm` — Toggle User Welcome Banner
+Toggles the username display in the top system banner.
+- `nm` : Switches banner user display on or off.
+
+#### `shnm` — Toggle Shell Name Prompt
+Toggles displaying the shell name inside the command prompt.
+- `shnm` : Enables or disables shell name in prompt.
+
+#### `chgnm` — Rename Active Terminal Session
+Assigns a custom name to the active T-CORE session (F1–F12).
+- `chgnm <name>` : Sets the session label (e.g. `chgnm Compiler`).
+
+---
+
+### 5. Display & Visual Customization
+
+#### `cl` — Clear Screen
+Clears the active session's screen buffer and resets the cursor to the top.
+- `cl` : Clears the screen.
+
+#### `cr` — Set Screen Colors
+Customizes text and background colors using the 16 unlocked VGA palette colors (`black`, `blue`, `green`, `cyan`, `red`, `magenta`, `brown`, `light_gray`, `dark_gray`, `light_blue`, `light_green`, `light_cyan`, `light_red`, `light_magenta`, `yellow`, `white`).
+- `cr` : Resets display to default colors.
+- `cr <fg_color> <bg_color>` : Sets foreground and background colors (e.g. `cr green black` or `cr white blue`).
+
+---
+
+### 6. Hardware Diagnostics & Metrics
+
+#### `sys` — System & CPU Information
+Queries processor and memory hardware directly via CPUID and system tables.
+- `sys` : Reports CPU vendor, model, 32-bit x86 or 64-bit x64 mode, clock rate, and detected RAM.
+
+#### `wt` — Real-Time Date & Clock
+Reads and displays the current calendar date and time from the CMOS Real-Time Clock (RTC).
+- `wt` : Displays timestamp.
+
+#### `upwt` — System Uptime
+Displays elapsed time since kernel boot in hours, minutes, and seconds.
+- `upwt` : Prints uptime counter.
+
+#### `wtw` — Command Execution Duration
+Reports the exact execution duration (stopwatch) of the last executed command.
+- `wtw` : Displays elapsed seconds.
+
+#### `hs` — Command History
+Displays the list of recently executed commands in the active session.
+- `hs` : Prints session history.
+
+#### `by&` — Project Credits & Authorship
+Displays the official project developer roster loaded directly from `src/utils/by.txt`.
+- `by&` : Renders credits.
+
+#### `h` — Display Help Summary
+Prints the clean list of all available commands and their general purpose.
+- `h` : Displays help list.
+
+---
+
+### 7. Power Management & Disk Maintenance
+
+#### `kpt` — System Suspend (Screen Lock)
+Powers down the monitor signal via VGA DPMS and locks the console.
+- `kpt` : Turns off screen. Requires pressing a key and entering the account password to unlock.
+
+#### `* scr` — Inactivity Auto-Suspend Timer
+Configures automatic screen suspension after a period of keyboard inactivity.
+- `scr <minutes>` : Sets timeout duration (e.g. `scr 10`).
+
+#### `* rebsys` — Hardware Reboot
+Triggers a processor hardware reset via the 8042 keyboard controller pulse (`outb 0x64, 0xFE`), with ACPI fallback.
+- `rebsys` : Reboots the machine.
+
+#### `* shtsys` — Complete Power Down
+Shuts down machine power by sending the `_S5` sleep state command to the ACPI power controller (`outw 0x604, 0x2000` / `outw 0xB004, 0x2000`).
+- `shtsys` : Turns off computer power.
+
+#### `* updk` — Format Secondary Storage
+Performs low-level FAT32 formatting on the connected secondary disk.
+- `updk` : Prompts confirmation and initializes a fresh FAT32 volume.
+
+#### `fixfs` — File System Verification
+Performs consistency checks on FAT32 allocation tables and directory structures.
+- `fixfs` : Analyzes and reports filesystem health.
 
 ---
 
