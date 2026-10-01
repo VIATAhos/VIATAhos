@@ -1,0 +1,27 @@
+# macOS metadata
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Build artifacts
+build/
+*.o
+*.bin
+*.elf
+*.a
+*.out
+
+# Generated disk images and media
+*.img
+*.iso
+*.tar
+
+# Logs and test outputs
+*.log
+qemu_*.txt
+serial.log
+
+# Temporary test directories
+iso_root/
+tar_root/

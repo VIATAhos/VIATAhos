@@ -1,0 +1,19 @@
+======================================================================
+                         VIATAhos - CREDITS
+======================================================================
+
+This file collects the names of the people who, with their own hands,
+shaped, wrote, and developed the VIATAhos code.
+
+If you would like to collaborate on the project, please include
+your name or nickname at the bottom of this list before submitting
+your Pull Request.
+
+----------------------------------------------------------------------
+DEVELOPERS AND CONTRIBUTORS:
+----------------------------------------------------------------------
+AQUILtheeagle - Founder - 2026
+
+======================================================================
+Thank you for defending independent and free computing.
+======================================================================

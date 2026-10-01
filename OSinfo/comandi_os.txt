@@ -1,0 +1,638 @@
+===============================================================================
+                       VIATAhos - LISTA COMPLETA DEI COMANDI
+===============================================================================
+
+Legenda: I comandi contrassegnati da * richiedono privilegi di amministratore.
+
+Regola Generale per Estensioni Doppie:
+Per qualsiasi file avente un'estensione doppia (es. compressi .smol come .xep.smol, .txt.smol, ecc.), l'argomento di qualsiasi comando deve essere sempre specificato nel formato: ext.ext nome.
+Esempi applicati a tutto l'OS:
+- do xep.smol vecchio xep.smol nuovo (rinomina un file compresso)
+- cf png.smol immagine (copia un'immagine compressa)
+- xp xep.smol calcolatrice (avvia direttamente un eseguibile compresso)
+- di txt.smol diario (apre un testo compresso nell'editor)
+- shr xep.smol editor nickname (invia file compresso via P2P)
+
+-------------------------------------------------------------------------------
+TASTI DI NAVIGAZIONE E FRECCE DIREZIONALI
+-------------------------------------------------------------------------------
+Freccia SU      - Scorri la vista del terminale verso l'alto (scorrimento testo).
+Freccia GIU     - Scorri la vista del terminale verso il basso (scorrimento testo).
+Freccia SINISTRA - Muovi il cursore a sinistra all'interno del comando corrente.
+Freccia DESTRA   - Muovi il cursore a destra all'interno del comando corrente.
+Tasti F1-F12     - (In modalità TUI/Terminale) Passa da un terminale attivo a un altro (Multitasking/Terminali Multipli).
+
+-------------------------------------------------------------------------------
+GERARCHIA DEI PROMPT E DEI DRIVE (Dinamica in base al boot e permessi)
+-------------------------------------------------------------------------------
+* Avvio da Floppy Disk (Drive A):
+  - A>             : Boot da Floppy principale (OS, non modificabile), utente standard.
+  - A:KN>          : Boot da Floppy principale, amministratore (non modificabile).
+  - A:F1\>         : Floppy 1 (secondario) senza OS, utente standard.
+  - A:KN:F1\>      : Floppy 1 (secondario) senza OS, amministratore.
+  - A:F2\>         : Floppy 2 (terziario) senza OS, utente standard.
+  - A:KN:F2\>      : Floppy 2 (terziario) senza OS, amministratore.
+
+* Avvio da CD/DVD (Drive B):
+  - B>             : Boot da CD principale (OS, non modificabile), utente standard.
+  - B:KN\>         : Boot da CD principale, amministratore (non modificabile).
+  - B:D1\>         : CD/DVD 1 senza OS (solo masterizzazione), utente standard.
+  - B:KN:D1\>      : CD/DVD 1 senza OS (solo masterizzazione), amministratore.
+
+* Avvio da Unità Flash USB/SD (Drive C):
+  - C\>            : Boot da Flash principale (OS), utente standard.
+  - E:KN\>         : Boot da Flash principale, amministratore.
+  - C:R1\>         : Unità rimovibile 1 senza OS, utente standard.
+  - C:KN:R1\>      : Unità rimovibile 1 senza OS, amministratore.
+
+* Avvio da Disco Fisso SSD/HDD (Drive D):
+  - D\>            : Boot da Disco Fisso principale (OS), utente standard.
+  - E:KN\>         : Boot da Disco Fisso principale, amministratore.
+  - D:X1\>         : Disco fisso secondario 1 senza OS, utente standard.
+  - D:KN:X1\>      : Disco fisso secondario 1 senza OS, amministratore.
+
+* Avvio da Nastro Magnetico (Drive E):
+  - E\>            : Boot da Nastro principale (OS, non modificabile), utente standard.
+  - E:KN\>         : Boot da Nastro principale, amministratore (non modificabile).
+  - E:N1\>         : Nastro dati 1 senza OS (solo masterizzazione), utente standard.
+  - E:KN:N1\>      : Nastro dati 1 senza OS (solo masterizzazione), amministratore.
+
+* Avvio da Disco Virtuale (Drive F):
+  - F\>            : Boot da disco virtuale principale (OS), utente standard.
+  - F:KN\>         : Boot da disco virtuale principale, amministratore.
+  - F:V1\>         : disco virtuale 1 senza OS, utente standard.
+  - F:KN:V1\>      : disco virtuale 1 senza OS, amministratore.
+-------------------------------------------------------------------------------
+1. SISTEMA E HARDWARE
+-------------------------------------------------------------------------------
+* xsys  - Mostra informazioni hardware approfondite dell'OS (CPU, allocazione RAM, thread logici e core attivi), esegue un Hex Dump completo delle aree di memoria diagnostiche della RAM, effettua il dump del settore di avvio (settore 0) dell'unità OSDISK attiva e, se il computer è connesso a una griglia di calcolo P2P, visualizza in tempo reale la tabella di carico, temperature e processi attivi su ciascun nodo del cluster (Admin).
+          Esempio: xsys
+xco     - Esegue una diagnostica approfondita su tutti i coprocessori installati (audio Wave-NAND, video V-Blitter, wireless ESP32) mostrandone la memoria usata, lo stato del firmware e la temperatura.
+          Esempio: xco
+dma     - Visualizza lo stato dei canali DMA fisici, i trasferimenti di memoria RAM attivi in background e le priorità di banda bus.
+          Esempio: dma
+xerr    - Legge il registro del controller di memoria per tracciare e mostrare gli errori hardware corretti o rilevati (ECC RAM, bus, anomalie voltaggio CPU).
+          Esempio: xerr
+iosys   - Elenca i dispositivi collegati con i loro codici alfanumerici e mostra in tempo reale la velocità di trasferimento (throughput di lettura e scrittura in KB/s) di tutte le unità a disco attive.
+          Esempio: iosys
+xdrv    - Mostra informazioni sui driver installati nel sistema e caricati dall'unità di avvio attiva (OSDISK: A, B, C o D).
+          Esempio: xdrv
+dwdrv   - Carica dinamicamente in memoria un driver (salvandolo sull'unità di avvio OSDISK corrente).
+          Esempio: dwdrv vdrv stretched_display
+dldrv   - Disattiva e scarica dalla memoria un driver attivo, liberando risorse.
+          Esempio: dldrv vdrv stretched_display
+updrv   - Aggiorna a caldo un driver salvato sull'unità OSDISK corrente senza riavviare il sistema operativo.
+          Esempio: updrv vdrv stretched_display++
+txpwr   - Regola la potenza di trasmissione (in dBm o livelli 1-5) del modulo radio ESP32 (Wi-Fi/Bluetooth) per bilanciare consumo e portata.
+          Esempio: txpwr 2+
+syncwt  - Sincronizza l'orologio interno RTC (Real-Time Clock) tramite internet/NTP con un server orario mondiale.
+          Esempio: syncwt
+env     - Elenca, imposta o rimuove variabili d'ambiente globali in memoria.
+          Esempi:
+          - env (mostra tutte le variabili attive)
+          - env PATH_WORK > C > R1 > Progetti (imposta la variabile)
+* dwsys - Installa il sistema operativo (Install OS) sull'unità selezionata.
+          Esempio: dwsys > x1
+* upsys - Aggiorna il sistema operativo (Upgrade OS) all'ultima versione.
+          Esempio: upsys
+* bootrp- Ripara e ripristina il boot sector (MBR/VBR) dell'unità di boot attiva (OSDISK) corrente del dispositivo (Admin).
+          Esempio: bootrp
+deg     - Mostra la temperatura interna dei componenti (in Kelvin, Celsius e Fahrenheit).
+          Esempio: deg
+* clk   - Permette di modificare la velocità di clock della CPU (Admin).
+          Esempio: clk 16
+selclk  - Seleziona una velocità di clock presalvata. Se eseguito da solo, elenca i profili salvati.
+          Esempi:
+          - selclk (mostra la lista di profili di velocità del clock)
+          - selclk low (imposta il profilo a basso consumo)
+          - selclk medium (imposta il profilo bilanciato)
+          - selclk high (imposta il profilo alte prestazioni)
+svclk   - Salva la velocità di clock corrente con un nome specifico nella lista dei profili.
+          Esempio: svclk name
+* dlsvclk- Rimuove un profilo di velocità di clock salvato dalla lista (Admin).
+          Esempio: dlsvclk name
+kb      - Permette di modificare il layout della tastiera.
+          Esempio: kb IT (o kb US)
+pwr     - Mostra stato batteria (%, tempo e V). Se fisso, mostra solo il voltaggio.
+          Esempio: pwr
+xpwr    - Mostra un report avanzato della batteria: cicli di carica completati, temperatura interna della cella, capacità massima originaria rispetto a quella attuale (stato di degrado dell'accumulatore).
+          Esempio: xpwr
+xchg    - Mostra i valori grezzi letti in tempo reale dai sensori hardware (inclinazione/accelerometro, luminosità dello schermo, sensore di prossimità all'orecchio) e ne permette la calibrazione.
+          Esempio: xchg
+
+-------------------------------------------------------------------------------
+2. COLORI E INTERFACCIA (GUI / TUI)
+-------------------------------------------------------------------------------
+tsi     - Cambia modalità da terminale (TUI) a interfaccia grafica (GUI) e viceversa.
+          Esempio: tsi
+cap     - Cattura uno screenshot dello schermo corrente (sia in GUI che in TUI) e lo salva in un file immagine compresso.
+          Esempio: cap png.smol cattura
+rec     - Registra lo schermo corrente (sia in GUI che in TUI) salvando la sequenza in un file video compresso.
+          Esempio: rec mp4.smol registrazione
+view    - Visualizza file immagine (PNG, RAW) in modalità grafica o tramite art ASCII colorata a schermo (TUI).
+          Esempio: view png.smol foto
+fnt     - Elenca i font di sistema disponibili o modifica la grandezza/stile del font del terminale corrente.
+          Esempio: fnt monospace 12
+zoom    - Regola la scala globale della GUI o del testo del terminale attivo.
+          Esempio: zoom 150 (imposta zoom al 150%)
+
+-------------------------------------------------------------------------------
+3. CONFIGURAZIONE E PERSONALIZZAZIONE
+-------------------------------------------------------------------------------
+sv      - Salva lo stato e le personalizzazioni grafiche e di sistema correnti.
+          Esempio: sv
+dlsv    - Elimina le personalizzazioni e ripristina le impostazioni di default.
+          Esempio: dlsv
+svp     - Imposta un'applicazione specifica da avviare automaticamente all'avvio dell'OS.
+          Esempio: svp xep editor
+dlsvp   - Rimuove l'avvio automatico dell'applicazione impostata all'avvio.
+          Esempio: dlsvp xep editor
+papr    - Cambia il pattern geometrico ripetuto (tiled pattern) dello sfondo del desktop.
+          Esempio: papr 2
+dwpapr  - Aggiunge una nuova immagine 32x32 come tile e ne stampa a schermo la posizione.
+          Esempio: dwpapr ext nome_immagine
+uppapr  - Aggiorna la lista dei tiled pattern e stampa il numero totale di pattern disponibili.
+          Esempio: uppapr
+dlpapr  - Elimina un tiled pattern specifico selezionato tramite il suo numero di posizione.
+          Esempio: dlpapr 3
+thm     - Cambia il tema di colori della GUI.
+          Esempio: thm 2
+thmcr   - Crea o modifica un tema colore personalizzato per l'interfaccia grafica specificando i colori RGB.
+          Esempio: thmcr 3 0xFF0000 0x000000 (crea il tema 3 con bordi rossi su sfondo nero)
+mde     - Seleziona il profilo di utilizzo ideale del dispositivo per diverse situazioni (es. silente, normale, eco, all'aperto).
+          Esempio: mde silent (o mde general, mde eco)
+lang    - Cambia la lingua dell'interfaccia utente, dei menu e delle guide di sistema.
+          Esempio: lang it (imposta la lingua in italiano)
+vmode   - Configura la risoluzione e la modalità di visualizzazione del display stretched da 8.8".
+          Esempio: vmode stretched_60 (o vmode standard_50)
+mckvel  - Regola la velocità di scorrimento del cursore del mouse (Mouse Velocity).
+          Esempio: mckvel 6 (imposta velocità su scala 1-10)
+mckdmnt - Imposta la mano dominante per l'utilizzo del mouse invertendo i tasti (left/right).
+          Esempio: mckdmnt left (imposta mouse per mancini)
+spkmde  - Modifica il profilo di equalizzazione dell'altoparlante (es. voice, music, flat).
+          Esempio: spkmde voice
+spk%    - Regola il bilanciamento audio stereo in percentuale tra canale sinistro e destro.
+          Esempio: spk% L50 R50
+mic%    - Imposta la sensibilità e guadagno percentuale d'ingresso del microfono.
+          Esempio: mic% 80
+brt     - Regola la luminosità dello schermo retroilluminato (es. brt 80).
+          Esempio: brt 80
+upbrt   - Attiva o disattiva il controllo automatico della luminosità basato sul fotosensore.
+          Esempio: upbrt on
+
+-------------------------------------------------------------------------------
+4. CONNETTIVITÀ (RETE, MOBILE E BLUETOOTH)
+-------------------------------------------------------------------------------
+net     - Attiva o disattiva la connessione alla rete Internet.
+          Esempio: net
+xnet    - Mostra le informazioni dettagliate sulla connessione di rete corrente.
+          Esempio: xnet
+scnet   - (SCan interNET) Scansiona e stampa a schermo la lista di reti Wi-Fi
+          disponibili nell'area con nome e intensità del segnale.
+          Esempio: scnet
+cnnet   - (CoNnect interNET) Si connette a una rete Wi-Fi specifica per nome e password.
+          Esempio: cnnet NomeRete password
+getcnet - Recupera una credenziale di rete crittografata (password Wi-Fi, chiavi P2P) salvata nel database locale.
+          Esempio: getcnet NomeRete
+chgcnet - Salva o aggiorna una credenziale di rete crittografata nel database locale.
+          Esempio: chgcnet NomeRete NuovaPassword
+ipnet   - (IP interNET) Mostra l'indirizzo IP corrente assegnato al dispositivo
+          (locale e pubblico).
+          Esempio: ipnet
+lan     - Scansiona la rete locale (LAN) a cui si è connessi elencando i dispositivi e i loro IP.
+          Esempio: lan
+ont     - (ONline Test) Testa la raggiungibilità di un indirizzo o server.
+          Esempio: ont 192.168.1.1
+ping    - Invia ping continui verso un host/amico visualizzando un istogramma ASCII in tempo reale del ritardo (latenza ms).
+          Esempio: ping nickname
+onet    - (Online interNET) Si collega a un sito web. Se in modalità terminale,
+          lo mostra graficamente con cursore. Se in modalità GUI, apre il browser
+          predefinito di sistema.
+          Esempio: onet https://github.com/VIATAhomebrew
+blu     - Attiva o disattiva la connessione al modulo Bluetooth.
+          Esempio: blu
+xblu    - Mostra le informazioni dettagliate e lo stato del modulo Bluetooth.
+          Esempio: xblu
+scblu   - (SCan BLUetooth) Scansiona e lista i dispositivi Bluetooth nelle vicinanze.
+          Esempio: scblu
+cnblu   - (CoNnect BLUetooth) Si connette a un dispositivo Bluetooth per nome o ID.
+          Esempio: cnblu CuffieXYZ
+msg     - Invia un messaggio di testo. Se riceve un nickname o una chiave P2P effettua una connessione internet P2P globale crittografata (sia su VIATAstation che su VIATAconnected). Se riceve un numero telefonico invia un SMS classico (richiede scheda 4G/5G).
+          Esempi:
+          - msg nickname >ciao (invia messaggio P2P via internet)
+          - msg 3451234567 >ciao (invia SMS classico via rete mobile 4G/5G)
+call    - Avvia una chiamata vocale (GSM o VoIP P2P crittografata via internet, stile TeamSpeak).
+          In modalità TUI, la chiamata rimane attiva in background anche cambiando sessione di terminale (tasti F1-F12).
+          Esempi:
+          - call 3451234567 (chiamata cellulare standard 4G/5G)
+          - call nickname (chiamata vocale P2P via internet)
+          - call chiave_amico (chiamata vocale P2P via internet)
+dlcall  - Interrompe e chiude la chiamata vocale (cellulare o VoIP P2P) attualmente attiva in background.
+          Esempio: dlcall
+resp    - Risponde a una chiamata vocale in arrivo.
+          Esempio: resp
+rej     - Rifiuta una chiamata vocale in arrivo, eventualmente inviando un messaggio SMS di risposta rapida.
+          Esempi:
+          - rej (rifiuta la chiamata e riaggancia)
+          - rej >Sto guidando (rifiuta e invia l'SMS specificato)
+rng     - Configura le suonerie (tracce o note Wave-NAND) e lo stato di vibrazione per chiamate e notifiche.
+          Esempio: rng vib (attiva solo la vibrazione)
+fwd     - Attiva la deviazione delle chiamate in entrata verso un altro numero o un nickname P2P.
+          Esempio: fwd 3459999999
+dlfwd   - Disattiva la deviazione automatica delle chiamate in entrata.
+          Esempio: dlfwd
+hld     - Mette in attesa la chiamata vocale attiva corrente o riprende una chiamata in attesa.
+          Esempio: hld
+conf    - Unisce le chiamate attive e in attesa in una conferenza vocale a tre.
+          Esempio: conf
+shr     - Invia un file via internet a un amico nella tua lista (se è online).
+          Nota: per file a doppia estensione (es. compressi), scrivi ext.ext nome.
+          Esempio: shr xep.smol editor nickname
+amg     - Mostra tutti gli amici della tua lista e il loro stato (online/offline).
+          Esempio: amg
+* dlamg - Rimuove un amico dalla lista (richiede privilegi di amministratore).
+          Esempio: dlamg nickname
+blk     - Aggiunge un nickname o numero telefonico alla lista nera per bloccare chiamate e messaggi.
+          Esempio: blk nickname (o blk 3451234567)
+unblk   - Rimuove un nickname o numero telefonico dalla lista nera sbloccando le comunicazioni.
+          Esempio: unblk nickname (o unblk 3451234567)
+svamg   - Invia una richiesta di amicizia a un utente.
+          Esempio: svamg nickname
+key     - Mostra la tua chiave pubblica P2P univoca (generata o convalidata da un directory server centrale) per farti aggiungere dagli amici con svamg.
+          Esempio: key
+upkey   - Genera una nuova coppia di chiavi crittografiche asimmetriche P2P per la sicurezza e le salva sull'unità OSDISK attiva.
+          Esempio: upkey
+statnet - Elenca tutte le connessioni IP attive in quel momento, mostrando quali amici (nickname) o dispositivi (IP) sono connessi a noi e quanta banda stanno usando.
+          Esempio: statnet
+trcnet  - Traccia il percorso di rete dei pacchetti IP verso un host o un amico, mostrando i nodi intermedi.
+          Esempio: trcnet 192.168.1.50
+scport  - Scansiona ed effettua un test di apertura porta di rete su un indirizzo IP di destinazione (es. per verificare se VIATAshare o un'altra porta sia attiva).
+          Esempio: scport 192.168.1.50 80 (controlla se la porta 80 è aperta)
+now     - Imposta lo stato di presenza visibile agli amici nella lista amg.
+          Esempi:
+          - now free (disponibile)
+          - now busy (occupato)
+          - now custom >messaggiocustom (stato personalizzato)
+recv    - Se eseguito da solo, mette il Bluetooth in visibilità per ricevere file da dispositivi di terze parti vicini, ed elenca i file ricevuti in coda di accettazione con il relativo mittente.
+          Permette di accettare (y) o rifiutare (n) i file ricevuti specificandone estensione e nome.
+          Esempi:
+          - recv (attiva ricezione e mostra la lista dei file in coda)
+          - recv y txt documento (accetta il file documento.txt)
+          - recv n xep.smol gioco (rifiuta e rimuove il gioco compresso)
+cel     - Attiva o disattiva la visualizzazione dello stato della connessione mobile 4G/5G, mostrando operatore, cella radio agganciata, banda in uso e potenza del segnale in dBm tramite un indicatore grafico.
+          Esempio: cel on (o cel off)
+ans     - Elenca in ordine cronologico i messaggi vocali registrati in segreteria telefonica locale.
+          L'output è formattato come: DD/MM/YY-hh:mm:ss-number.
+          Esempio: ans
+ansmb   - Attiva la segreteria telefonica locale impostando il numero di squilli prima della risposta automatica.
+          Esempio: ansmb 5 (risponde dopo 5 squilli)
+playans - Riproduce l'audio di uno specifico messaggio vocale presente in segreteria.
+          Esempio: playans 3 (riproduce il messaggio numero 3)
+nbk     - (Name Book) Elenca in ordine alfabetico tutti i contatti salvati nella rubrica telefonica locale.
+          Esempio: nbk
+svnbk   - Salva un nuovo contatto in rubrica associando un nome a un numero telefonico e a una chiave pubblica P2P.
+          Esempio: svnbk "Luca Rossi" 3451234567 luca_p2pkey
+srcnbk  - Cerca tutti i contatti in rubrica il cui nome contiene la stringa specificata.
+          Esempio: srcnbk luca
+nd      - Mostra le associazioni correnti tra i tasti di scelta rapida (1-9) e i contatti della rubrica per la composizione rapida.
+          Esempio: nd
+svnd    - Mappa un tasto numerico della tastiera fisica (1-9) a un contatto per la composizione rapida tramite pressione o invio rapido.
+          Esempio: svnd 2 "Luca Rossi"
+dlnd    - Rimuove l'associazione di composizione rapida assegnata a uno specifico tasto numerico (1-9).
+          Esempio: dlnd 2
+upcall  - Mostra il registro storico delle chiamate (perse, ricevute, effettuate) e degli SMS (inviati/ricevuti) ordinato per data, ora, durata o anteprima di testo.
+          Esempio: upcall
+netspd  - Esegue un test della velocità di download/upload della rete internet o P2P attiva e ne stampa a schermo la latenza e banda in tempo reale.
+          Esempio: netspd
+netget  - Scarica un file o risorsa da un URL internet salvandola sul disco OSDISK corrente.
+          Esempio: netget https://raw.githubusercontent.com/VIATAhomebrew/repo/main/gioco.xep.smol
+fw      - Abilita, disabilita o configura le regole generali di sicurezza del firewall locale (Firewall).
+          Esempi:
+          - fw on (attiva il firewall)
+          - fw block 192.168.1.10 (blocca IP locale)
+
+-------------------------------------------------------------------------------
+5. GESTIONE FILE E SYSTEMA DISCO
+-------------------------------------------------------------------------------
+dk      - Mostra lo stato di tutti i dischi, lo spazio rimanente e lo spazio totale, visualizzando una barra percentuale grafica di riempimento e una mappa dei blocchi logici del disco per evidenziare la frammentazione.
+          Esempio: dk
+cwd     - Mostra a schermo il percorso assoluto della cartella corrente dell'utente.
+          Esempio: cwd
+
+cf      - Copia un file negli appunti.
+          Esempio: cf txt documento
+xf      - Taglia un file negli appunti.
+          Esempio: xf txt documento
+vf      - Incolla il file dagli appunti.
+          Esempio: vf (incolla nella dir corrente) o vf txt copia (incolla come copia.txt)
+x       - Mostra informazioni avanzate sul file selezionato.
+          Esempio: x txt documento
+* updk  - Formatta il disco selezionato.
+          Esempio: updk > x1
+* srcf  - Controlla tutti i settori logici dell'unità specificata alla ricerca di errori di lettura (settori danneggiati), mostrando una mappa visiva a blocchi dello stato del disco (Admin).
+          Esempio: srcf f1
+* svsrcf- Corregge e isola i settori danneggiati rilevati dall'ultima scansione srcf sull'unità specificata (Admin).
+          Esempio: svsrcf f1
+sec     - Effettua il dump esadecimale grezzo dei 512 byte di uno specifico settore logico del disco selezionato.
+          Esempio: sec f1 45 (legge il settore 45 dell'unità f1)
+nty     - Configura e gestisce array ridondanti di dischi software (RAID/Nerd redundant ArraY) unendo più unità fisiche in un unico volume logico sicuro.
+          Esempio: nty create 1 C1 C2 (crea mirror RAID 1 tra le chiavette C1 e C2)
+srcsys  - Cerca file, cartelle o contenuti testuali nel sistema.
+          Esempi:
+          - srcsys txt mio (cerca file mio.txt)
+          - srcsys dir (cerca cartelle con nome dir)
+          - srcsys "text" (cerca il testo "text" all'interno dei file)
+prt     - Mostra il contenuto testuale di un file direttamente a schermo (stampa a terminale).
+          Esempio: prt txt leggi
+chk     - Calcola e mostra la firma di integrità (checksum/hash) di un file.
+          Esempio: chk xep.smol gioco
+topf    - Mostra le prime N righe (o byte) di un file.
+          Esempio: topf txt codice 10 (mostra le prime 10 righe)
+lvfm    - Monitora in tempo reale le nuove righe aggiunte in coda a un file.
+          Esempio: lvfm txt log_connessioni
+own     - Assegna la proprietà di un file a un utente specifico o lo contrassegna per l'amministrazione.
+          Esempio: own txt diario nickname
+endf    - Mostra le ultime N righe (o byte) di un file.
+          Esempio: endf txt log_connessioni 15 (mostra le ultime 15 righe)
+flt     - Filtra e mostra solo le righe di un file che contengono la parola chiave specificata.
+          Esempio: flt txt log_sistema ERROR
+cutf    - Divide (taglia) un file di grandi dimensioni in parti più piccole di dimensione configurabile.
+          Esempio: cutf txt file_grande 360 (divide in parti da 360 KB)
+stkf    - Riunisce (stack) i blocchi di un file precedentemente suddiviso con cutf.
+          Esempio: stkf txt file_grande
+mnt     - Monta un file immagine (grezzo/ISO) come unità disco logica aggiuntiva nel sistema.
+          Esempio: mnt img disco_virtuale
+unmnt   - Smonta un'unità logica precedentemente caricata con mnt.
+          Esempio: unmnt disco_virtuale
+
+
+-------------------------------------------------------------------------------
+7. GESTIONE APPLICAZIONI E TESTING
+   (Nota: le istruzioni di programmazione ed i comandi logici/matematici di .vkbn
+    funzionano anche direttamente a riga di comando per manipolare i registri)
+-------------------------------------------------------------------------------
+cnp     - Contenitore (drawer/cartella) per tutte le applicazioni installate.
+          Esempio: cnp
+all     - Seleziona tutte le applicazioni all'interno di un menu o contenitore.
+          Esempio: all
+k       - Gestione processi (Task Manager): elenca tutti i processi attivi in RAM di tutte le sessioni (F1-F12). Se eseguito in modalità grafica (GUI), apre il monitor di sistema grafico (finestra con grafici di RAM/CPU e gestione processi interattiva con mouse).
+          Esempio: k
+g       - Connette la CPU locale a una griglia di calcolo distribuito P2P o elenca i nodi del cluster attivi per il calcolo parallelo.
+          Esempi:
+          - g (elenca i nodi attivi e la potenza del cluster)
+          - g join 192.168.1.100 (unisce quel computer alla griglia)
+syncg   - Forza la sincronizzazione barriera di tutti i nodi attivi della griglia prima di procedere con lo step di calcolo parallelo successivo.
+          Esempio: syncg
+* xg    - Prenota ed alloca risorse esclusive (core o RAM distribuita) per compiti paralleli ad alta priorità (Admin).
+          Esempio: xg alloc 64 cores
+upg     - Copia e distribuisce istantaneamente file di dati o librerie .vlib a tutti i nodi del cluster (Upload Grid).
+          Esempio: upg vlib libcalcolo
+gstat   - Mostra statistiche prestazionali globali aggregate del cluster (TFLOPS, nodi, temp, banda).
+          Esempio: gstat
+gsht    - Termina e interrompe forzatamente l'esecuzione di un processo distribuito sulla griglia P2P.
+          Esempio: gsht 105
+srv     - Avvia il server host multiuso (web, database, server di calcolo o multiplayer di videogiochi) sulla porta indicata.
+          Esempio: srv 8080
+srvsts  - Visualizza lo stato del server host attivo (servizi, connessioni, larghezza di banda e richieste).
+          Esempio: srvsts
+bign    - Esegue calcoli matematici a precisione arbitraria (Big Number) senza limiti di cifre.
+          Esempio: bign "2^65536"
+fft     - Esegue il calcolo parallelo della trasformata di Fourier veloce su grandi dataset di dati.
+          Esempio: fft input_dati output_spettro
+gql     - Mostra l'elenco dei processi e compiti di calcolo in coda sulla griglia (Grid Queue List).
+          Esempio: gql
+gqprt   - Modifica la priorità di elaborazione di un compito di calcolo in coda sulla griglia (Grid Queue Priority).
+          Esempio: gqprt 105 1 (imposta priorità 1 al task 105)
+srvbal  - Attiva e gestisce il bilanciatore di carico delle connessioni in ingresso su server multipli (Server Balancer).
+          Esempio: srvbal on (o srvbal add 192.168.1.102)
+srvfw   - Configura le regole di sicurezza del firewall per le porte ospitate dal server (Server Firewall).
+          Esempio: srvfw block 192.168.1.15
+gnd     - Mostra informazioni diagnostiche di dettaglio di un singolo nodo del cluster (Grid Node Detail).
+          Esempio: gnd 192.168.1.102 (o gnd nickname)
+gbmk    - Esegue un benchmark prestazionale complessivo della griglia del cluster in TFLOPS (Grid Benchmark).
+          Esempio: gbmk
+srvrt   - Configura o mostra la directory radice di hosting dei file pubblici del server (Server Root).
+          Esempi:
+          - srvrt C > sito (su OSDISK C principale, cartella sito)
+          - srvrt E > sito (su OSDISK a nastro E principale, cartella sito)
+          - srvrt E > N1 > sito (su nastro dati N1, cartella sito)
+sht     - Forza la chiusura dell'applicazione specificata.
+          Esempio: sht xep editor
+reb     - Riavvia l'applicazione specificata in caso di blocco.
+          Esempio: reb xep editor
+sn      - Sound test (riproduce tracce audio di test).
+          Esempio: sn
+vn      - Video test (esegue test di visualizzazione colori e framerate).
+          Esempio: vn
+fs      - Salva l'output generato da un comando direttamente in un file.
+          Esempio: fs txt log sys (salva l'output del comando sys nel file log.txt)
+ntf     - Visualizza gli ultimi messaggi di notifica e avvisi di sistema accumulati in background.
+          Esempio: ntf
+rpt     - Ripete l'ultimo comando scritto ed eseguito per N volte.
+          Esempio: rpt(wt)5 (esegue il comando wt per 5 volte di fila)
+v       - Esegue una sequenza di comandi concatenati.
+          Esempio: v cl sys (pulisce lo schermo e poi esegue sys)
+w       - Sospende l'esecuzione per N secondi.
+          Esempio: w 5
+pkg     - Mostra l'elenco dei pacchetti software installati in memoria e le repository P2P attive.
+          Esempio: pkg
+svpkg   - Salva ed aggiunge una nuova repository P2P remota alla lista di sorgenti software.
+          Esempio: svpkg key_repo_amico (o svpkg https://repo)
+dwpkg   - Cerca, scarica ed installa automaticamente un'applicazione xep dalle repository P2P attive.
+          Esempio: dwpkg editor
+dlpkg   - Elimina ed esclude una repository P2P salvata dall'elenco delle sorgenti software.
+          Esempio: dlpkg key_repo_amico
+wut     - Definisce un commento ignorato durante l'interpretazione dello script .vkbn.
+          Esempio: wut questo è un commento
+mv      - Assegna o muove un valore a una variabile o registro locale (Move).
+          Esempio: mv r1 10
+lbl     - Dichiara un'etichetta di punto di salto (Label) per il flusso di esecuzione.
+          Esempio: lbl loop
+cmp     - Confronta due valori o registri (Compare) impostando i flag logici di sistema.
+          Esempio: cmp r1 r2
+j       - Effettua un salto incondizionato (Jump) all'etichetta specificata.
+          Esempio: j loop
+je      - Effettua un salto se l'ultimo confronto cmp ha rilevato uguaglianza (Jump Equal).
+          Esempio: je loop
+jne     - Effettua un salto se l'ultimo confronto cmp ha rilevato diversità (Jump Not Equal).
+          Esempio: jne loop
+jg      - Effettua un salto se il primo valore di cmp era maggiore del secondo (Jump Greater).
+          Esempio: jg loop
+js      - Effettua un salto se il primo valore di cmp era minore (Smaller) del secondo (Jump Smaller).
+          Esempio: js loop
+if      - Esegue un comando condizionatamente in riga singola (If).
+          Esempio: if r1 > 5 xp xep gioco
+ife     - Esegue un comando se l'ultimo confronto cmp ha rilevato uguaglianza (If Equal).
+          Esempio: ife xp xep gioco
+ifne    - Esegue un comando se l'ultimo confronto cmp ha rilevato diversità (If Not Equal).
+          Esempio: ifne xp xep gioco
+ifg     - Esegue un comando se il primo valore di cmp era maggiore del secondo (If Greater).
+          Esempio: ifg xp xep gioco
+ifs     - Esegue un comando se il primo valore di cmp era minore del secondo (If Smaller).
+          Esempio: ifs xp xep gioco
+ret     - Termina l'esecuzione dello script restituendo un codice numerico di stato (Return).
+          Esempio: ret 0
+rnm     - Salta a un'etichetta salvando l'indirizzo di ritorno per eseguire una subroutine (Run Method).
+          Esempio: rnm subroutine
+inc     - Incrementa di 1 il valore di una variabile o registro (Increment).
+          Esempio: inc r1
+dec     - Decrementa di 1 il valore di una variabile o registro (Decrement).
+          Esempio: dec r1
+nope    - Non esegue alcuna operazione di calcolo per un ciclo di clock (No Operation).
+          Esempio: nope
+add     - Somma un valore o registro a un registro di destinazione.
+          Esempio: add r1 5
+sub     - Sottrae un valore o registro da un registro di destinazione.
+          Esempio: sub r1 2
+and     - Esegue un'operazione logica AND bit-a-bit tra registri.
+          Esempio: and r1 0x0F
+or      - Esegue un'operazione logica OR bit-a-bit tra registri.
+          Esempio: or r1 0xF0
+xor     - Esegue un'operazione logica XOR bit-a-bit tra registri.
+          Esempio: xor r1 0x55
+mul     - Moltiplica il valore di un registro per un valore o registro (Multiply).
+          Esempio: mul r1 5
+div     - Esegue la divisione intera di un registro per un valore o registro (Divide).
+          Esempio: div r1 2
+mod     - Calcola il resto della divisione intera (Modulo) di un registro.
+          Esempio: mod r1 3
+not     - Inverte tutti i bit di un registro di destinazione (Bitwise NOT).
+          Esempio: not r1
+sftl    - Esegue lo scorrimento dei bit del registro a sinistra di N posizioni (Shift Left).
+          Esempio: sftl r1 2
+sftr    - Esegue lo scorrimento dei bit del registro a destra di N posizioni (Shift Right).
+          Esempio: sftr r1 2
+psh     - Inserisce un valore o il contenuto di un registro in cima allo stack (Push).
+          Esempio: psh r1
+pop     - Estrae l'ultimo valore dallo stack inserendolo in un registro (Pop).
+          Esempio: pop r1
+* brk   - Sospende l'esecuzione dello script ed apre una sessione di debug interattiva (Admin, Breakpoint).
+          Esempio: brk
+clr     - Resetta a zero il valore di una variabile o di un registro (Clear).
+          Esempio: clr r1
+test    - Esegue un confronto logico AND bit-a-bit impostando i flag senza modificare il registro.
+          Esempio: test r1 0x01
+rgs     - Mostra i valori dei registri (r1-r8), flags e stack pointer nella sessione attiva (Registers).
+          Esempio: rgs
+rst     - Ripristina e azzera tutti i registri e lo stack di sessione del terminale (Reset).
+          Esempio: rst
+stp     - Esegue una singola istruzione alla volta in modalità debug breakpoint (Step).
+          Esempio: stp
+vm      - Crea, inizializza e avvia un'istanza virtuale (sandbox) isolata a livello software del kernel VIATA-16.
+          Esempi:
+          - vm start sandbox 256 (avvia VM sandbox con 256 KB di RAM)
+          - vm list (elenca le VM attive)
+vol     - Mostra o imposta il volume audio generale o dei singoli 4 canali del coprocessore Wave-NAND.
+          Esempi:
+          - vol (mostra il volume dei canali)
+          - vol 80 (volume generale al 80%)
+          - vol 3 50 (canale 3 al 50%)
+hex     - Effettua un Hex Dump (in esadecimale) di una zona di memoria RAM oppure dei byte di un file memorizzato su disco.
+          Esempi:
+          - hex 0x01000000 128 (dump di 128 byte di memoria RAM da quell'indirizzo)
+          - hex xep calcolatrice (dump esadecimale di calcolatrice.xep su disco)
+math    - Calcolatrice scientifica completa (stile Casio fx-991) con supporto a espressioni in stringa, funzioni trigonometriche, iperboliche, logaritmi, fattoriali, permutazioni/combinazioni (nPr/nCr) e costanti.
+          Esempi:
+          - math "sin(45) + log(100)"
+          - math "10 nCr 3"
+          - math "5! * pi"
+sw      - Avvia un cronometro di precisione a schermo (che può essere messo in pausa o resettato) o un conto alla rovescia con avviso acustico tramite Wave-NAND.
+          Esempi:
+          - sw (avvia il cronometro)
+          - sw 60 (avvia conto alla rovescia di 60 secondi)
+
+-------------------------------------------------------------------------------
+8. UNITÀ A NASTRO (TAPE BACKUP)
+-------------------------------------------------------------------------------
+tpsts   - Mostra lo stato del lettore/scrittore a nastro (es. se inserito, protetto da scrittura, posizione testina e spazio stimato). Se c'è un'etichetta nei primi byte, la stampa a schermo.
+          Esempio: tpsts
+tpls    - Elenca tutti i file, i metadati della sessione e le tracce presenti nel nastro.
+          Esempio: tpls
+tp      - Seleziona un file specifico all'interno del nastro per la riproduzione o l'analisi (usato spesso con play).
+          Esempio: tp wav canzone (seleziona canzone.wav per il play)
+          - tp all (seleziona tutti i file e i dump del nastro)
+tpfwd   - Avanza velocemente il nastro di N blocchi (o record) senza leggerli. Se N è omesso, avanza di 1 blocco.
+          Esempio: tpfwd 5
+tpbk    - Torna indietro sul nastro di N blocchi (o record). Se N è omesso, arretra di 1 blocco.
+          Esempio: tpbk 5
+tprwd   - Riavvolge interamente il nastro magnetico all'inizio (blocco 0).
+          Esempio: tprwd
+tpff    - Avvolge velocemente ed interamente il nastro magnetico fino alla fine fisica della bobina (EOT).
+          Esempio: tpff
+tpeod   - Avanza velocemente fino alla fine dei dati registrati (End of Data) per consentire l'accodamento di nuove informazioni.
+          Esempio: tpeod
+dwtpnm  - Scrive un blocco di intestazione (Header) iniziale cancellando logicamente il nastro e assegnandogli un nome/etichetta alfanumerica.
+          Esempio: dwtpnm BackupProgetti
+dltp    - Cancella e formatta completamente il nastro (wipe/zero-fill logico).
+          Esempio: dltp
+tpejct  - Riavvolge e sblocca fisicamente il carrello di caricamento del nastro per consentirne la rimozione sicura.
+          Esempio: tpejct
+xtp     - Visualizza lo stato corrente e le statistiche operative dettagliate del drive a nastro (velocità di lettura/scrittura, errori rilevati, calibrazione testina).
+          Esempio: xtp
+tpbrn   - Masterizza un intero dump settore per settore (immagine ISO/raw) di un'unità disco sul nastro.
+          Esempio: tpbrn f1
+uptp    - Esegue il backup di un singolo specifico file dal disco al nastro a partire dalla posizione corrente, registrandolo con data, ora e un commento.
+          Esempio: uptp txt diario "backup note"
+tprcd   - Scrive e registra in tempo reale un programma eseguibile o un flusso dati in esecuzione direttamente su nastro.
+          Esempio: tprcd xep editor
+dwtp    - Ripristina un singolo file dal nastro riscrivendolo nell'unità disco specificata.
+          Esempio: dwtp 12 >C (ripristina il file con ID 12 sull'unità C)
+          - dwtp all >C (ripristina un intero dump del disco sovrascrivendo l'unità selezionata)
+
+-------------------------------------------------------------------------------
+9. UNITÀ OTTICHE (CD/DVD)
+-------------------------------------------------------------------------------
+cdsts   - Mostra lo stato del lettore/masterizzatore ottico (carrello aperto/chiuso, disco inserito, tipo supporto ROM/R/RW, spazio).
+          Esempio: cdsts
+xcd     - Mostra le statistiche operative dettagliate del lettore ottico (errori di lettura/correzione laser, velocità effettiva, stato firmware).
+          Esempio: xcd
+cdls    - Elenca tutti i file, i metadati della sessione e le tracce audio/dati presenti nel supporto ottico.
+          Esempio: cdls
+cdejct  - Apre fisicamente il carrello motorizzato dell'unità ottica.
+          Esempio: cdejct
+cdijct  - Chiude fisicamente il carrello motorizzato dell'unità ottica.
+          Esempio: cdijct
+cdbrn   - Masterizza un intero dump settore per settore (immagine ISO/raw) di un'unità disco sul supporto CD-R/DVD-R.
+          Esempio: cdbrn C (crea un'immagine identica all'unità C)
+upcd    - Scrive un singolo file o programma sul supporto ottico in modalità multi-sessione (se supportato).
+          Esempio: upcd xep editor
+dlcd    - Cancella e formatta completamente un supporto ottico riscrivibile (CD-RW o DVD-RW) per una nuova masterizzazione (wipe).
+          Esempio: dlcd
+play    - Riproduce una specifica traccia audio Wave-NAND selezionata.
+          Esempio: play 3
+cd      - Seleziona un file specifico all'interno del CD/DVD per la riproduzione o l'analisi (usato spesso con play).
+          Esempio: cd wav canzone (seleziona canzone.wav per il play)
+dwcd    - Ripristina o copia una sessione dati o un file dal supporto ottico all'unità disco specificata.
+          Esempio: dwcd 1 >C (ripristina la sessione 1 sull'unità C)
+
+-------------------------------------------------------------------------------
+10. UNITÀ A FLOPPY (FLOPPY DISK)
+-------------------------------------------------------------------------------
+flsts   - Mostra lo stato corrente dell'unità floppy (disco inserito, protezione da scrittura, settori totali/liberi).
+          Esempio: flsts
+xfl     - Diagnostica avanzata dell'unità floppy (allineamento testina, oscillazione giri motore RPM, statistiche errori e correzioni ECC).
+          Esempio: xfl
+flls    - Elenca tutti i file e la struttura delle cartelle presenti nel floppy disk inserito.
+          Esempio: flls
+fl      - Seleziona un file specifico all'interno del floppy disk per l'analisi o l'esecuzione (usato in combo con altri comandi).
+          Esempio: fl txt nota (seleziona nota.txt dal floppy)
+flejct  - Espelle fisicamente il floppy disk tramite il meccanismo di caricamento motorizzato.
+          Esempio: flejct
+flbrn   - Esegue una clonazione settore per settore (immagine raw di backup) di un'unità disco scrivendola direttamente sul floppy.
+          Esempio: flbrn C (clona l'unità C sul floppy)
+upfl    - Scrive un singolo file direttamente sul floppy disk a partire dalla posizione corrente.
+          Esempio: upfl xep gioco
+dlfl    - Cancella fisicamente e formatta a basso livello il floppy disk sovrascrivendolo con byte nulli (wipe).
+          Esempio: dlfl
+dwfl    - Copia o ripristina un file o un intero dump dal floppy disk all'unità di destinazione specificata.
+          Esempio: dwfl txt nota >C (copia nota dal floppy all'unità C)
+
+-------------------------------------------------------------------------------
+11. ESTENSIONI DEI FILE SUPPORTATE
+-------------------------------------------------------------------------------
+.kvbn   - Kernel Viata BiN (file di esecuzione script e comandi del kernel).
+.xep    - eXEcutable aPplication (applicazioni native compilate per l'OS Viata).
+.vlib   - Viata LIBrary (librerie condivise dinamiche usate dalle applicazioni).
+.exe    - windows EXEcutable (eseguibile nativo di microsoft windows)
+
+===============================================================================
